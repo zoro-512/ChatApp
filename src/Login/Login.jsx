@@ -5,11 +5,16 @@ import {
   Button,
   Input,
 } from '@mui/material';
+import { createUserWithEmailAndPassword,signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { auth, db } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { Password } from '@mui/icons-material';
 
 export default function Login() {
+  const [load,setLoad]=useState(false);
   const [avtar, setAvtar] = useState({
     file: null,
     url: ''
@@ -25,10 +30,51 @@ export default function Login() {
     }
   };
 
-  const handleLogin=e=>{
+  const handleLogin=async (e)=>{
      e.preventDefault();
-    toast.warn("hello");
-  };
+ const formData = new FormData(e.target);
+  const { email, password } = Object.fromEntries(formData);
+
+  try {
+    await signInWithEmailAndPassword(auth,email,password)
+    toast.success("Account logged in successfully!");
+  } catch (error) {
+    toast.error(error.message);
+  }
+  finally{
+    setLoad(false);
+  }
+};
+  const handleRegister = async (e) => {
+  e.preventDefault();
+  setLoad(true);
+  const formData = new FormData(e.target);
+  const { userName, email, password } = Object.fromEntries(formData);
+
+  try {
+    const res = await createUserWithEmailAndPassword(auth, email, password);
+
+   await setDoc(doc(db, 'user', res.user.uid), {
+  username: userName,
+  id: res.user.uid, // ✅ fixed here
+  blocked: [],
+});
+
+
+    await setDoc(doc(db,'userChats',res.user.uid),{
+      chats:[],
+    });
+
+
+    toast.success("Account created successfully!");
+  } catch (error) {
+    toast.error(error.message);
+  }
+  finally{
+    setLoad(false);
+  }
+};
+
 
   return (
    <Box
@@ -100,7 +146,7 @@ export default function Login() {
           Create an Account
         </Typography>
 
-        <form onSubmit={handleLogin} style={{ width: '100%' }}>
+        <form onSubmit={handleRegister} style={{ width: '100%' }}>
           <label htmlFor="file" style={{ cursor: 'pointer', display: 'block', textAlign: 'center' }}>
             {avtar.url ? (
               <img
@@ -126,9 +172,9 @@ export default function Login() {
           <Input type="text" placeholder="Username" name="userName" fullWidth sx={{ mb: 2,color:'white' }} />
           <Input type="text" placeholder="Email" name="email" fullWidth sx={{ mb: 2 ,color:'white'}} />
           <Input type="password" placeholder="Password" name="password" fullWidth sx={{ mb: 2,color:'white' }} />
-          <Button variant="contained" fullWidth>
+          {!load && <Button variant="contained" type='submit' fullWidth>
             Register
-          </Button>
+          </Button>}
         </form>
       </Box>
       <ToastContainer position="bottom-right" />

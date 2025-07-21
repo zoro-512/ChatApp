@@ -15,15 +15,15 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
+import { auth } from '../../lib/firebase';
 
 export default function Detail() {
   return (
     <Box
       sx={{
         width: '100%',
-        maxWidth:'90vw',
         maxWidth: 320,
-        height: '100vh', // 🔥 important for scroll to work
+        height: '100vh',
         p: 2,
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(12px)',
@@ -33,7 +33,6 @@ export default function Detail() {
         gap: 2,
       }}
     >
-      {/* Profile */}
       <Box sx={{ textAlign: 'center' }}>
         <Avatar sx={{ width: 72, height: 72, mx: 'auto', mb: 1 }}>A</Avatar>
         <Typography variant="h6">Jane Doe</Typography>
@@ -44,7 +43,6 @@ export default function Detail() {
 
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
 
-      {/* Accordions */}
       <Accordion sx={{ background: 'transparent', color: 'white' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
           <Typography>Chat Settings</Typography>
@@ -63,7 +61,7 @@ export default function Detail() {
         </AccordionDetails>
       </Accordion>
 
-      <Box sx={{overflow:'auto', maxHeight:'40vh'}}>
+      <Box sx={{ overflow: 'auto', maxHeight: '40vh' }}>
         <Typography variant="subtitle1" sx={{ mb: 1 }}>
           Shared Photos
         </Typography>
@@ -91,9 +89,20 @@ export default function Detail() {
         </List>
       </Box>
 
-      <Box >
-        <Button sx={{backgroundColor:'rgba(254, 1, 1, 0.54)',color:'white', width:'100%'}}>
-            BLOCK
+      <Box>
+        <Button sx={{ backgroundColor: 'rgba(254, 1, 1, 0.54)', color: 'white', width: '100%' }}>
+          BLOCK
+        </Button>
+        <Button
+          onClick={() => auth.signOut()}
+          sx={{
+            backgroundColor: 'rgba(59, 51, 51, 0.54)',
+            color: 'white',
+            width: '100%',
+            mt: 1,
+          }}
+        >
+          log Out
         </Button>
       </Box>
     </Box>

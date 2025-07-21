@@ -4,16 +4,35 @@ import Detail from './Component/dea/detail';
 import Chat from './Component/chat/chat';
 import Login from './Login/Login';
 import Notification from './Notification/Notification';
+import { useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useUserStore } from './lib/userStore';
+import { auth } from './lib/firebase';
 
 export default function App() {
-  const u = true;
+  const { currentUser, isLoading, fetchUserInfo } = useUserStore();
+
+  useEffect(() => {
+    const unSub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchUserInfo(user.uid); // logged in ✅
+      } else {
+        fetchUserInfo(null); // logged out ❗important
+      }
+    });
+
+    return () => unSub();
+  }, [fetchUserInfo]);
+
+  if (isLoading) return <div style={{ color: 'white' }}>Loading...</div>;
 
   return (
     <>
-      {u ? (
+      {currentUser ? (
         <Box
           sx={{
-            backgroundImage: 'url("/cherry-blossom-scenery-4k-3840x2160-v0-x2r5r2qp2a1e1.webp")',
+            backgroundImage:
+              'url("/cherry-blossom-scenery-4k-3840x2160-v0-x2r5r2qp2a1e1.webp")',
             backgroundSize: 'cover',
             height: '100vh',
             width: '100vw',
@@ -29,7 +48,7 @@ export default function App() {
         >
           <Box
             sx={{
-              backgroundColor: '#731a8e3a',
+              backgroundColor: '#1a778e3a',
               backdropFilter: 'blur(19px)',
               border: '1px solid rgba(255,255,255,0.2)',
               width: '90vw',
@@ -39,30 +58,36 @@ export default function App() {
               overflow: 'hidden',
             }}
           >
-            <Box sx={{ 
-              width: '25%', 
-              borderRight: '1px solid rgba(255,255,255,0.2)', 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
+            <Box
+              sx={{
+                width: '25%',
+                borderRight: '1px solid rgba(255,255,255,0.2)',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               <List />
             </Box>
-            <Box sx={{ 
-              width: '50%', 
-              borderRight: '1px solid rgba(255,255,255,0.2)', 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
+            <Box
+              sx={{
+                width: '50%',
+                borderRight: '1px solid rgba(255,255,255,0.2)',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               <Chat />
             </Box>
-            <Box sx={{ 
-              width: '25%', 
-              height: '100%', 
-              display: { xs: 'none', sm: 'none', md: 'none', lg: 'flex' },
-              flexDirection: 'column'
-            }}>
+            <Box
+              sx={{
+                width: '25%',
+                height: '100%',
+                display: { xs: 'none', sm: 'none', md: 'none', lg: 'flex' },
+                flexDirection: 'column',
+              }}
+            >
               <Detail />
             </Box>
           </Box>
@@ -70,7 +95,7 @@ export default function App() {
       ) : (
         <Login />
       )}
-      
+
       <Notification />
     </>
   );

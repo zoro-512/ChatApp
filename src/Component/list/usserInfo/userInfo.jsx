@@ -1,10 +1,13 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import AddCallIcon from '@mui/icons-material/AddCall';
+import { useUserStore } from "../../../lib/userStore";
 
 export default function UserInfo() {
+
+  const {currentUser}=useUserStore();
   return (
     <Box
       sx={{
@@ -16,8 +19,9 @@ export default function UserInfo() {
       }}
     >
       {/* Left side: User avatar */}
-      <Box>
+      <Box sx={{display:"flex", gap:'10px'}}>
         <PersonIcon fontSize="large" />
+        <Typography variant="h4">{currentUser.username}</Typography>
       </Box>
 
       {/* Right side: Action icons */}
