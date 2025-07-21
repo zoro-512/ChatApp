@@ -1,10 +1,12 @@
 import { Avatar, Box, Button, Typography } from "@mui/material";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useState } from "react";
+import { useUserStore } from "../../../lib/userStore";
 
 export default function AddUser() {
   const [user, setUser] = useState(null);
+  const { currentUser } = useUserStore();
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -21,6 +23,47 @@ export default function AddUser() {
       } else {
         setUser(null);
       }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAdd = async () => {
+    const chatRef = collection(db, "chats");
+    const userChatRef = collection(db, "userChats");
+    
+    try {
+      const newChatRef = doc(chatRef);
+
+      // Update the found user's chat list
+      await updateDoc(doc(userChatRef, user.id), {
+        chats: arrayUnion({
+          chatId: newChatRef.id,
+          lastMessage: "",
+          receiverID: currentUser.id, 
+          updatedAt: Date.now()
+        })
+      });
+
+      // Update the current user's chat list
+      await updateDoc(doc(userChatRef, currentUser.id), {
+        chats: arrayUnion({
+          chatId: newChatRef.id,
+          lastMessage: "",
+          receiverID: user.id, 
+          updatedAt: Date.now()
+        })
+      });
+
+      // Create the new chat document
+      await setDoc(newChatRef, {
+        createdAt: serverTimestamp(),
+        messages: []
+      });
+
+      // Reset user state after successful add
+      setUser(null);
+      
     } catch (error) {
       console.log(error);
     }
@@ -102,6 +145,19 @@ export default function AddUser() {
             <Typography variant="h6" sx={{ color: "white" }}>
               {user.username}
             </Typography>
+            <Button 
+              onClick={handleAdd}
+              variant="contained"
+              sx={{
+                backgroundColor: "#731a8e",
+                "&:hover": {
+                  backgroundColor: "#5a1570",
+                },
+                borderRadius: 2,
+              }}
+            >
+              add
+            </Button>
           </Box>
         )}
       </Box>

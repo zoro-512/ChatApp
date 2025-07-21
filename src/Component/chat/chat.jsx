@@ -20,7 +20,9 @@ export default function ChatSection() {
   const endRef = useRef(null);
   useEffect(()=>{
    endRef.current?.scrollIntoView({behaviour:'smooth'});
-},[])
+},[]);
+
+
    useEffect(() => {
     const handleClickOutside = (e) => {
       if (pickerRef.current && !pickerRef.current.contains(e.target)) {

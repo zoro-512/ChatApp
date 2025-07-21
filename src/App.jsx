@@ -15,9 +15,9 @@ export default function App() {
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
       if (user) {
-        fetchUserInfo(user.uid); // logged in ✅
+        fetchUserInfo(user.uid); 
       } else {
-        fetchUserInfo(null); // logged out ❗important
+        fetchUserInfo(null); 
       }
     });
 
