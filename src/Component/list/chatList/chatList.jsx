@@ -3,10 +3,41 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddUser from './addUser';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useUserStore } from '../../../lib/userStore';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
 
 export default function ChatList() {
+  const [chat,setChat]=useState([]);
   const [addUse,setAddUser]=useState(false);
+  const { currentUser } = useUserStore();
+
+  useEffect(() => {
+  const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (res) => {
+    const items = res.data()?.chats;
+
+    if (!items || items.length === 0) {
+      setChat([]); // clear chat list if no chats
+      return;
+    }
+
+    const promises = items.map(async (item) => {
+      const userDocRef = doc(db, "user", item.userId);
+      const userDocSnap = await getDoc(userDocRef);
+      const user = userDocSnap.exists() ? userDocSnap.data() : null;
+
+      return { ...item, user };
+    });
+
+    const chatData = await Promise.all(promises);
+    setChat(chatData.sort((a,b)=>b.updatedAt-a.updatedAt));
+  });
+
+  return () => unSub();
+}, [currentUser.id]);
+
+  
   return (
     <Box className="chatList" sx={{ display: 'flex', flexDirection: 'column', p: 2}}>
       <Box className="search" sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
@@ -45,79 +76,15 @@ export default function ChatList() {
         </IconButton>
       </Box>
       <Box className="us" >
-        <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
-                <Box className="item" sx={{ display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-           borderBottom: '1px solid #ccc',
-           p:2,
-          gap: 4,}}>
-            <AccountCircleIcon sx={{fontSize:34}}/>
-            <Typography variant='h6'>user</Typography>
-        </Box>
+
+       {chat.map((chat) => (
+  <Box key={chat.userId} sx={{ display: 'flex', gap: 2, p: 2 }}>
+    <Avatar />
+    <Typography>{chat.user?.username || "Unknown User"}</Typography>
+  </Box>
+))}
         
+               
 
       </Box>
      {addUse&& <AddUser />}
