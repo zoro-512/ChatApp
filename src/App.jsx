@@ -13,12 +13,13 @@ import { useChatStore } from './lib/chatStore';
 export default function App() {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId } = useChatStore();
+
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
       if (user) {
-        fetchUserInfo(user.uid); 
+        fetchUserInfo(user.uid);
       } else {
-        fetchUserInfo(null); 
+        fetchUserInfo(null);
       }
     });
 
@@ -32,19 +33,18 @@ export default function App() {
       {currentUser ? (
         <Box
           sx={{
-            backgroundImage:
-              'url("/cherry-blossom-scenery-4k-3840x2160-v0-x2r5r2qp2a1e1.webp")',
+            backgroundImage: 'url("/cherry-blossom-scenery-4k-3840x2160-v0-x2r5r2qp2a1e1.webp")',
             backgroundSize: 'cover',
+            backgroundPosition: 'center',
             height: '100vh',
             width: '100vw',
-            backgroundPosition: 'center',
             display: 'flex',
-            overflow: 'hidden',
             justifyContent: 'center',
             alignItems: 'center',
             position: 'fixed',
             top: 0,
             left: 0,
+            overflow: 'hidden',
           }}
         >
           <Box
@@ -62,25 +62,31 @@ export default function App() {
             <Box
               sx={{
                 width: '25%',
-                borderRight: '1px solid rgba(255,255,255,0.2)',
                 height: '100%',
+                borderRight: '1px solid rgba(255,255,255,0.2)',
                 display: 'flex',
                 flexDirection: 'column',
               }}
             >
-              <List />
+              <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                <List />
+              </Box>
             </Box>
+
             <Box
               sx={{
                 width: '50%',
-                borderRight: '1px solid rgba(255,255,255,0.2)',
                 height: '100%',
+                borderRight: '1px solid rgba(255,255,255,0.2)',
                 display: 'flex',
                 flexDirection: 'column',
               }}
             >
-             { chatId && <Chat />}
+              <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                {chatId && <Chat />}
+              </Box>
             </Box>
+
             <Box
               sx={{
                 width: '25%',
@@ -89,7 +95,9 @@ export default function App() {
                 flexDirection: 'column',
               }}
             >
-              <Detail />
+              <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                <Detail />
+              </Box>
             </Box>
           </Box>
         </Box>
