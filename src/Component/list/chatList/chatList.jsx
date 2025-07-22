@@ -1,17 +1,18 @@
 import { Box, Typography, IconButton, Avatar } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddUser from './addUser';
 import { useEffect, useState } from 'react';
 import { useUserStore } from '../../../lib/userStore';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useChatStore } from '../../../lib/chatStore';
 
 export default function ChatList() {
   const [chat, setChat] = useState([]);
   const [addUse, setAddUser] = useState(false);
   const { currentUser } = useUserStore();
+  const { changeChat } = useChatStore();
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -26,7 +27,6 @@ export default function ChatList() {
 
       const promises = items.map(async (item) => {
         try {
-          // Use receiverID instead of userId to match your AddUser component structure
           const userDocRef = doc(db, "user", item.receiverID);
           const userDocSnap = await getDoc(userDocRef);
           const user = userDocSnap.exists() ? userDocSnap.data() : null;
@@ -44,6 +44,29 @@ export default function ChatList() {
 
     return () => unSub();
   }, [currentUser?.id]);
+
+  const handleSelect = async (chatItem) => {
+    const userChats = chat.map(item => {
+      const { user, ...rest } = item;
+      return rest;
+    });
+
+    const chatIndex = userChats.findIndex(item => item.chatId === chatItem.chatId);
+    if (chatIndex !== -1) {
+      userChats[chatIndex].isSeen = true;
+    }
+
+    const userChatRef = doc(db, "userChats", currentUser.id);
+
+    try {
+      await updateDoc(userChatRef, {
+        chats: userChats,
+      });
+      changeChat(chatItem.chatId, chatItem.user);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Box className="chatList" sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
@@ -75,22 +98,23 @@ export default function ChatList() {
           />
         </Box>
 
-        {/* Add icon button */}
         <IconButton onClick={() => setAddUser(!addUse)} sx={{ color: 'white' }}>
           <AddIcon />
         </IconButton>
       </Box>
-      
+
       <Box className="us">
         {chat && chat.length > 0 ? (
           chat.map((chatItem, index) => (
-            <Box 
-              key={chatItem.chatId || index} 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2, 
+            <Box
+              key={chatItem.chatId || index}
+              onClick={() => handleSelect(chatItem)}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
                 p: 2,
+                backgroundColor: chatItem.isSeen ? 'rgba(255,255,255,0.1)' : "#731a8e",
                 cursor: 'pointer',
                 '&:hover': {
                   backgroundColor: 'rgba(255,255,255,0.1)',
@@ -117,7 +141,7 @@ export default function ChatList() {
           </Typography>
         )}
       </Box>
-      
+
       {addUse && <AddUser />}
     </Box>
   );

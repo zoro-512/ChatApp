@@ -8,10 +8,11 @@ import { useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useUserStore } from './lib/userStore';
 import { auth } from './lib/firebase';
+import { useChatStore } from './lib/chatStore';
 
 export default function App() {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
-
+  const { chatId } = useChatStore();
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -78,7 +79,7 @@ export default function App() {
                 flexDirection: 'column',
               }}
             >
-              <Chat />
+             { chatId && <Chat />}
             </Box>
             <Box
               sx={{
