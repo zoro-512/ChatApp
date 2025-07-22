@@ -58,6 +58,7 @@ export default function ChatSection() {
   const handleSend = async () => {
     if (text === '') return;
     try {
+      //seting actual data
       await updateDoc(doc(db, 'chats', chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
@@ -77,6 +78,7 @@ export default function ChatSection() {
           const userChatData = userChatsSnapshot.data();
           const chatIndex = userChatData.chats.findIndex((c) => c.chatId === chatId);
 
+          //setting meta data
           if (chatIndex !== -1) {
             userChatData.chats[chatIndex].lastMessage = text;
             userChatData.chats[chatIndex].isSeen = id === currentUser.id;
@@ -146,28 +148,53 @@ export default function ChatSection() {
           p: 2,
         }}
       >
-        {chat?.messages?.map((message, index) => (
-          <Box
-            key={index}
-            className="own"
-            sx={{
-              display: 'flex',
-              justifyContent: message.senderId === currentUser.id ? 'flex-end' : 'flex-start',
-            }}
-          >
-            <Box
-              sx={{
-                bgcolor: message.senderId === currentUser.id ? '#4caf4f46' : '#1976d226',
-                p: 1.5,
-                borderRadius: 2,
-                maxWidth: '70%',
-                color: 'white',
-              }}
-            >
-              {message.text}
-            </Box>
-          </Box>
-        ))}
+   {chat?.messages?.map((message, index) => (
+  <Box
+    key={index}
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: message.senderId === currentUser.id ? 'flex-end' : 'flex-start',
+    }}
+  >
+    <Box
+      sx={{
+        bgcolor: message.senderId === currentUser.id ? '#4caf4f46' : '#1976d226',
+        p: 1.5,
+        borderRadius: 2,
+        maxWidth: '70%',
+        minWidth:'80px',
+        color: 'white',
+        wordBreak: 'break-word',
+        position: 'relative',
+        borderRadius: message.senderId === currentUser.id
+      ? '30px 20px 0px 26px'   
+      : '26px 30px 20px 0px',  
+      }}
+    >
+      <Typography variant="body1" sx={{ wordBreak: 'break-word',color:'white' }}>
+        {message.text}
+      </Typography>
+
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'white',
+          fontSize: '0.7rem',
+          mt: 0.5,
+          display: 'block',
+          textAlign: 'right',
+        }}
+      >
+        {new Date(message.createdAt).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
+      </Typography>
+    </Box>
+  </Box>
+))}
+
         <Box ref={endRef}></Box>
       </Box>
 
