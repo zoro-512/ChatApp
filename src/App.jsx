@@ -33,8 +33,10 @@ export default function App() {
       {currentUser ? (
         <Box
           sx={{
-            backgroundImage: 'url("/cherry-blossom-scenery-4k-3840x2160-v0-x2r5r2qp2a1e1.webp")',
-            backgroundSize: 'cover',
+            
+           background: 'linear-gradient(to right, #fdeff9, #ec38bc, #7303c0, #03001e)',
+            
+            backgroundSize: '100%',
             backgroundPosition: 'center',
             height: '100vh',
             width: '100vw',
