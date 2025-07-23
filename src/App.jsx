@@ -34,10 +34,8 @@ export default function App() {
         <Box
           sx={{
             
-           background: 'linear-gradient(to right, #fdeff9, #ec38bc, #7303c0, #03001e)',
-            
-            backgroundSize: '100%',
-            backgroundPosition: 'center',
+             background: 'linear-gradient(to right, #870000, #190a05)',
+    backgroundPosition: 'center',   
             height: '100vh',
             width: '100vw',
             display: 'flex',
@@ -52,7 +50,7 @@ export default function App() {
           <Box
             sx={{
               backgroundColor: '#1a778e3a',
-              backdropFilter: 'blur(19px)',
+              backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.2)',
               width: '90vw',
               height: '90vh',
