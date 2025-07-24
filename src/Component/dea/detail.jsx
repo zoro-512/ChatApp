@@ -16,8 +16,29 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
 import { auth } from '../../lib/firebase';
+import { useChatStore } from '../../lib/chatStore';
+import { db } from '../../lib/firebase';
+import { useUserStore } from '../../lib/userStore';
+import { arrayRemove, arrayUnion, doc, updateDoc } from 'firebase/firestore';
 
 export default function Detail() {
+  
+  const {chatId,user,isCurrentUserBlocked,  isReceiverUserBlocked,changeBlock}  =useChatStore();
+  
+  const {currentUser}=useUserStore();
+
+  const handleBlock= async ()=>{
+    if(!user) return;
+    const userDocRef=doc(db,"user",currentUser.id)
+    try {
+      updateDoc(userDocRef,{
+        blocked:isReceiverUserBlocked ? arrayRemove(user.id):arrayUnion(user.id),
+      });
+      changeBlock();
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <Box
       sx={{
@@ -35,7 +56,7 @@ export default function Detail() {
     >
       <Box sx={{ textAlign: 'center' }}>
         <Avatar sx={{ width: 72, height: 72, mx: 'auto', mb: 1 }}>A</Avatar>
-        <Typography variant="h6">Jane Doe</Typography>
+        <Typography variant="h6">{user?.username}</Typography>
         <Typography variant="body2" color="gray">
           Lorem ipsum dolor sit amet.
         </Typography>
@@ -90,8 +111,11 @@ export default function Detail() {
       </Box>
 
       <Box>
-        <Button sx={{ backgroundColor: 'rgba(254, 1, 1, 0.54)', color: 'white', width: '100%' }}>
-          BLOCK
+        <Button onClick={handleBlock} sx={{ backgroundColor: 'rgba(254, 1, 1, 0.54)', color: 'white', width: '100%' }}>
+          {
+            isCurrentUserBlocked? 'You are blocked ' :isReceiverUserBlocked?"user Blocked":"BLOCK"
+
+        }
         </Button>
         <Button
           onClick={() => auth.signOut()}

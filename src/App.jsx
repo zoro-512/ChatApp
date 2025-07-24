@@ -34,7 +34,8 @@ export default function App() {
         <Box
           sx={{
             
-             background: 'linear-gradient(to right, #870000, #190a05)',
+             backgroundImage: 'url("/jm3kocgn1eef1.png")',
+  backgroundSize: 'cover',
     backgroundPosition: 'center',   
             height: '100vh',
             width: '100vw',

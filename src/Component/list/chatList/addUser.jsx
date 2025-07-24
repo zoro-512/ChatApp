@@ -35,7 +35,6 @@ export default function AddUser() {
     try {
       const newChatRef = doc(chatRef);
 
-      // Update the found user's chat list
       await updateDoc(doc(userChatRef, user.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
@@ -45,7 +44,6 @@ export default function AddUser() {
         })
       });
 
-      // Update the current user's chat list
       await updateDoc(doc(userChatRef, currentUser.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
@@ -55,7 +53,6 @@ export default function AddUser() {
         })
       });
 
-      // Create the new chat document
       await setDoc(newChatRef, {
         createdAt: serverTimestamp(),
         messages: []

@@ -25,7 +25,7 @@ export default function ChatSection() {
   const endRef = useRef(null);
 
   const { currentUser } = useUserStore();
-  const { chatId, user } = useChatStore();
+  const { chatId, user,isCurrentUserBlocked,  isReceiverUserBlocked,changeBlock } = useChatStore();
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -248,7 +248,7 @@ export default function ChatSection() {
           </Box>
         )}
 
-        <IconButton onClick={handleSend}><SendIcon /></IconButton>
+        <IconButton disabled={isCurrentUserBlocked || isReceiverUserBlocked } onClick={handleSend}><SendIcon /></IconButton>
       </Box>
     </Box>
   );
