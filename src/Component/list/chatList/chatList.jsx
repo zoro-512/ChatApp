@@ -11,6 +11,7 @@ import { useChatStore } from '../../../lib/chatStore';
 export default function ChatList() {
   const [chat, setChat] = useState([]);
   const [addUse, setAddUser] = useState(false);
+  const [inp, setInp] = useState('');
   const { currentUser } = useUserStore();
   const { changeChat } = useChatStore();
 
@@ -68,6 +69,8 @@ export default function ChatList() {
     }
   };
 
+  const filtChat=chat.filter(c=>c.user.username.toLowerCase().includes(inp.toLowerCase()))
+
   return (
     <Box className="chatList" sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
       <Box className="search" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -87,6 +90,7 @@ export default function ChatList() {
           <input
             type="text"
             placeholder="Search..."
+            onChange={(e)=>setInp(e.target.value)}
             style={{
               border: 'none',
               outline: 'none',
@@ -105,7 +109,7 @@ export default function ChatList() {
 
       <Box className="us">
         {chat && chat.length > 0 ? (
-          chat.map((chatItem, index) => (
+          filtChat.map((chatItem, index) => (
             <Box
               key={chatItem.chatId || index}
               onClick={() => handleSelect(chatItem)}
@@ -126,9 +130,14 @@ export default function ChatList() {
                 {chatItem.user?.username?.[0]?.toUpperCase() || "?"}
               </Avatar>
               <Box>
-                <Typography sx={{ color: 'white', fontWeight: 'bold' }}>
-                  {chatItem.user?.username || "Unknown User"}
-                </Typography>
+                                <Typography sx={{ color: 'white', fontWeight: 'bold' }}>
+  {(chatItem.user?.blocked || []).includes(currentUser.id)
+    ? "User"
+    : chatItem.user?.username || "Unknown User"}
+</Typography>
+
+
+
                 <Typography sx={{ color: 'gray', fontSize: '0.9rem' }}>
                   {chatItem.lastMessage || "No messages yet"}
                 </Typography>
