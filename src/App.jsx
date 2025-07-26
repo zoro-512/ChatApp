@@ -16,7 +16,7 @@ export default function App() {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId, changeChat } = useChatStore();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const [showList, setShowList] = useState(true); // for mobile toggle
+  const [showList, setShowList] = useState(true);
 
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
@@ -26,13 +26,12 @@ export default function App() {
         fetchUserInfo(null);
       }
     });
-
     return () => unSub();
   }, [fetchUserInfo]);
 
   useEffect(() => {
     if (isMobile) {
-      setShowList(!chatId); // hide list when chat is selected
+      setShowList(!chatId); // hide list when chat is open
     }
   }, [chatId, isMobile]);
 
@@ -71,7 +70,7 @@ export default function App() {
               position: 'relative',
             }}
           >
-            {/* Chat List - Only show on mobile when showList is true */}
+            {/* List (left panel) */}
             {(!chatId || showList || !isMobile) && (
               <Box
                 sx={{
@@ -89,7 +88,7 @@ export default function App() {
               </Box>
             )}
 
-            {/* Chat Section */}
+            {/* Chat (middle panel) */}
             {chatId && (
               <Box
                 sx={{
@@ -97,8 +96,11 @@ export default function App() {
                   height: '100%',
                   borderRight: { md: '1px solid rgba(255,255,255,0.2)' },
                   position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
+                {/* Back Button on mobile */}
                 {isMobile && (
                   <IconButton
                     onClick={() => {
@@ -121,8 +123,8 @@ export default function App() {
               </Box>
             )}
 
-            {/* Detail - Only for desktop */}
-            {!isMobile && (
+            {/* Detail (right panel) - Desktop only */}
+            {!isMobile && chatId && (
               <Box
                 sx={{
                   width: '25%',
