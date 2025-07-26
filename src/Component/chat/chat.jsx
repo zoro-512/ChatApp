@@ -11,6 +11,8 @@ import SendIcon from '@mui/icons-material/Send';
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+
 
 import { doc, getDoc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useChatStore } from '../../lib/chatStore';
@@ -57,8 +59,25 @@ export default function ChatSection() {
 
   const handleSend = async () => {
     if (text === '') return;
+
+
+      if (isCurrentUserBlocked) {
+        console.log("fid");
+         toast.error("You are blocked and cannot send messages.");
+  
+    return;
+  }
+
+  if (isReceiverUserBlocked) {
+      console.log("fid");
+         toast.error("You have blocked this user. Unblock to send messages.");
+    return;
+  }
+
+
+
     try {
-      //seting actual data
+  
       await updateDoc(doc(db, 'chats', chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
@@ -78,7 +97,7 @@ export default function ChatSection() {
           const userChatData = userChatsSnapshot.data();
           const chatIndex = userChatData.chats.findIndex((c) => c.chatId === chatId);
 
-          //setting meta data
+         
           if (chatIndex !== -1) {
             userChatData.chats[chatIndex].lastMessage = text;
             userChatData.chats[chatIndex].isSeen = id === currentUser.id;

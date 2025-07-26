@@ -9,38 +9,49 @@ export const useChatStore = create((set) => ({
   isCurrentUserBlocked: false,
   isReceiverUserBlocked: false,
 
-  changeChat: (chatId, user) => {
+ 
+  changeChat: async (chatId, selectedUser) => {
     const currentUser = useUserStore.getState().currentUser;
 
-    if (user?.blocked?.includes(currentUser.id)) {
-      return set({
-        chatId,
-        user: null,
-        isCurrentUserBlocked: true,
-        isReceiverUserBlocked: false,
-      });
-    }
+    if (!currentUser || !selectedUser) return;
 
-    if (currentUser?.blocked?.includes(user.id)) {
-      return set({
-        chatId,
-        user,
-        isCurrentUserBlocked: false,
-        isReceiverUserBlocked: true,
-      });
-    }
+    try {
+      const [currentUserSnap, selectedUserSnap] = await Promise.all([
+        getDoc(doc(db, "user", currentUser.id)),
+        getDoc(doc(db, "user", selectedUser.id)),
+      ]);
 
-     return set({
-      chatId,
-      user,
-      isCurrentUserBlocked: false,
-      isReceiverUserBlocked: false,
-    });
+      const currentUserData = currentUserSnap.data();
+      const selectedUserData = selectedUserSnap.data();
+
+      const isCurrentUserBlocked = selectedUserData?.blocked?.includes(currentUser.id) || false;
+      const isReceiverUserBlocked = currentUserData?.blocked?.includes(selectedUser.id) || false;
+
+      set({
+        chatId,
+        user: selectedUser,
+        isCurrentUserBlocked,
+        isReceiverUserBlocked,
+      });
+    } catch (error) {
+      console.error("Failed to set chat:", error);
+    }
   },
 
+  
   changeBlock: () => {
     set((state) => ({
       isReceiverUserBlocked: !state.isReceiverUserBlocked,
     }));
+  },
+
+ 
+  resetChat: () => {
+    set({
+      chatId: null,
+      user: null,
+      isCurrentUserBlocked: false,
+      isReceiverUserBlocked: false,
+    });
   },
 }));
