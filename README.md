@@ -1,7 +1,7 @@
 # ⚡ Realtime Chat App
 
 A modern, full-featured real-time chat application built with **React**, **Firebase**, and **Material UI (MUI)**. It supports user authentication, live messaging, blocking functionality, and chat management.
-
+https://chat-app-five-alpha-48.vercel.app/
 ---
 
 ## 🚀 Features
