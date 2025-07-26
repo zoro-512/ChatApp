@@ -11,9 +11,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { auth, db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { Password } from '@mui/icons-material';
+import { Password, Translate } from '@mui/icons-material';
 
 export default function Login() {
+  const [overlayActive, setOverlayActive] = useState(true);
   const [cr,setCr]=useState(false);
   const [load,setLoad]=useState(false);
   const [avtar, setAvtar] = useState({
@@ -78,11 +79,13 @@ export default function Login() {
 
 
   return (
-   <Box
+    <Box>
+<Box
   className="Login" 
   sx={{
+    position:'relative',
     minHeight: '91.9vh',
-    background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)',
+    background: 'black',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -92,20 +95,72 @@ export default function Login() {
     p: 4,
     position: 'relative',
     overflow: 'hidden',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'radial-gradient(circle at 30% 20%, rgba(100,100,100,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(100,100,100,0.05) 0%, transparent 50%)',
-      pointerEvents: 'none',
-    }
+  
   }}
 >
+  <Box sx={{ position: 'absolute',
+    top: 0,
+    left: 0,
+    height: '100%',
+    width: '50%',
+    background: 'rgba(0, 0, 0, 1)',
+    color: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'transform 0.3s ease-in-out',
+     transform: overlayActive ? 'translateX(0%)' : 'translateX(100%)', 
+    zIndex: 10,
+  }}>
+   <Typography
+  variant="h3"
+  sx={{
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    mb: 2,
+    lineHeight: 1.2,
+  }}
+>
+  Join the Conversation
+</Typography>
+
+<Typography
+  variant="body1"
+  sx={{
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontSize: '1.1rem',
+    textAlign: 'center',
+    maxWidth: '80%',
+    mb: 4,
+  }}
+>
+  Connect with friends, share ideas, and be part of something amazing.
+  Experience seamless, real-time messaging like never before.
+</Typography>
+
+  <Button onClick={() => setOverlayActive(!overlayActive)}
+   sx={{
+    background: 'linear-gradient(217deg, rgba(201, 191, 191, 1) 0%, rgba(196, 192, 192, 1) 19%, rgba(10, 9, 10, 1) 69%, rgba(47, 27, 48, 1) 100%)',
+    backgroundSize: '200%',
+    backgroundPosition: 'left center',
+    color: '#fff',
+    px: 4,
+    py: 1.5,
+    borderRadius: '12px',
+    transition: 'all 0.4s ease',
+    '&:hover': {
+      backgroundPosition: 'right center',
+      transform: 'translateX(9px)', 
+    },
+  }}
+    >{overlayActive?"Sign In" :"new"}</Button>
+  </Box>
+
+
   {/* Sign In Section */}
-  {!cr && <Box
+  { <Box
     className="item"
     sx={{
       flex: 1,
@@ -118,7 +173,6 @@ export default function Login() {
       maxWidth: '50%',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
       alignItems: 'center',
       boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
       position: 'relative',
@@ -260,34 +314,10 @@ export default function Login() {
         Sign In
       </Button>
     </form>
-    
-    <Button 
-      variant='outlined' 
-      sx={{
-        m: 2,
-        textAlign: 'center',
-        borderColor: 'rgba(120,120,120,0.4)',
-        color: 'white',
-        borderRadius: '12px',
-        px: 4,
-        py: 1,
-        textTransform: 'none',
-        fontWeight: 500,
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          borderColor: 'rgba(150,150,150,0.6)',
-          backgroundColor: 'rgba(60,60,60,0.3)',
-          transform: 'translateY(-1px)',
-        }
-      }} 
-      onClick={() => setCr(!cr)}
-    >
-      Create Account
-    </Button>
   </Box>}
 
   {/* Register Section */}
-  {cr && (
+  { (
     <Box
       className="item"
       sx={{
@@ -313,7 +343,7 @@ export default function Login() {
         }
       }}
     >
-      <Box sx={{ textAlign: 'center', mb: 3 }}>
+      <Box sx={{ textAlign: 'center', mb: 3 ,m:0}}>
         <Typography 
           variant="h4" 
           gutterBottom
@@ -538,34 +568,13 @@ export default function Login() {
             Register
           </Button>
         )}
-        
-        <Button 
-          variant="outlined" 
-          sx={{ 
-            m: 1.5,
-            borderColor: 'rgba(120,120,120,0.4)',
-            color: 'white',
-            borderRadius: '12px',
-            px: 4,
-            py: 1,
-            textTransform: 'none',
-            fontWeight: 500,
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              borderColor: 'rgba(150,150,150,0.6)',
-              backgroundColor: 'rgba(60,60,60,0.3)',
-              transform: 'translateY(-1px)',
-            }
-          }} 
-          onClick={() => setCr(false)}
-        >
-          Back to Login
-        </Button>
       </form>
     </Box>
   )}
 
   <ToastContainer position="bottom-right" />
 </Box>
+    </Box>
+   
   );
 }
