@@ -1,36 +1,38 @@
-# ⚡ Realtime Chat App
+# ⚡ Real-Time Chat App
 
-A modern, full-featured real-time chat application built with **React**, **Firebase**, and **Material UI (MUI)**. It supports user authentication, live messaging, blocking functionality, and chat management.
-https://chat-app-five-alpha-48.vercel.app/
+A modern and responsive real-time chat application built with **React**, **Firebase**, and **Material UI (MUI)**. Chat live with other users, block/unblock people, share media, and manage conversations seamlessly.
+
+🔗 **Live Demo**: [https://chat-app-five-alpha-48.vercel.app](https://chat-app-five-alpha-48.vercel.app)
+
 ---
 
 ## 🚀 Features
 
-- 🔐 **Firebase Auth** – Secure sign in and sign out
-- 💬 **Realtime Messaging** – Built using Firestore and onSnapshot
-- 🧱 **Modern UI** – Styled with Material UI + Blur/Glass effects
-- 👤 **User Blocking** – Block/unblock users in real-time
-- 📥 **Shared Media** – Display shared photos and allow downloads
-- 🔍 **Search + Add Contacts** – Search existing users and start new chats
-- 🌐 **Fully Responsive** – Works great on desktop & mobile
+- 🔐 **Firebase Authentication** – Secure login/logout with email/password
+- 💬 **Real-Time Messaging** – Built using Firestore + `onSnapshot`
+- 🎨 **Modern UI** – MUI components with glassmorphism design
+- 🚫 **User Blocking** – Instantly block/unblock other users
+- 🖼️ **Media Sharing** – View and download shared images
+- 🔍 **User Search** – Start chats by searching usernames
+- 📱 **Responsive Design** – Mobile and desktop friendly
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
-| Tech       | Usage                             |
-|------------|------------------------------------|
-| React      | Frontend UI                        |
-| Firebase   | Auth, Firestore (DB), Hosting      |
-| Vite       | Build tool for lightning-fast dev  |
-| Zustand    | Global state management            |
-| MUI        | Component library & styling        |
+| Technology     | Usage                            |
+|----------------|----------------------------------|
+| **React**      | Frontend framework               |
+| **Firebase**   | Auth, Firestore, Hosting         |
+| **Zustand**    | Global state management          |
+| **MUI**        | UI components and theming        |
+| **Vite**       | Fast bundler and dev server      |
 
 ---
 
 ## 🧪 Getting Started
 
-### 1. Clone the Repository
+### 1. Clone the Repo
 
 ```bash
 git clone https://github.com/your-username/realtime-chat-app.git
