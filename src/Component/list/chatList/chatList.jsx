@@ -1,11 +1,15 @@
-import { Box, Typography, IconButton, Avatar } from '@mui/material';
+import { Box, Typography, IconButton, Avatar, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import AddUser from './addUser';
 import { useEffect, useState } from 'react';
 import { useUserStore } from '../../../lib/userStore';
-import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { addDoc, doc, getDoc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { getDocs, collection } from 'firebase/firestore';
+import Checkbox from '@mui/material/Checkbox';
+
+
 import { useChatStore } from '../../../lib/chatStore';
 
 export default function ChatList() {
@@ -69,6 +73,73 @@ export default function ChatList() {
     }
   };
 
+
+
+  
+  const [grp,setGrp]=useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+const [groupName, setGroupName] = useState('');
+
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
+  useEffect(() => {
+  const fetchUsers = async () => {
+    const querySnapshot = await getDocs(collection(db, 'user'));
+    const users = querySnapshot.docs
+      .map(doc => doc.data())
+      .filter(u => u.id !== currentUser.id);
+    setAllUsers(users);
+  };
+
+  fetchUsers();
+}, []);
+
+
+
+const toggleUser = (userId) => {
+  setSelectedUsers(prev =>
+    prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+  );
+};
+
+const handleCreateGroup = async () => {
+  if (!groupName || selectedUsers.length < 2) {
+    alert("Please enter a group name and select at least 2 members.");
+    return;
+  }
+
+  try {
+    // 1. Create new group
+    const newGroup = {
+      name: groupName,
+      createdBy: currentUser.id,
+      members: [...selectedUsers, currentUser.id], // include creator
+      createdAt: serverTimestamp(),
+    };
+
+    const grpRef = await addDoc(collection(db, "group"), newGroup);
+
+    // 2. Create userGroup mapping documents
+    const userGroupPromises = [...selectedUsers, currentUser.id].map(userId =>
+      addDoc(collection(db, "userGroup"), {
+        groupId: grpRef.id,
+        userId,
+        joinedAt: serverTimestamp(),
+      })
+    );
+
+    await Promise.all(userGroupPromises);
+    alert("Group created successfully!");
+    setGroupName('');
+    setSelectedUsers([]);
+    setGrp(false); // hide UI
+
+  } catch (err) {
+    console.error("Error creating group:", err);
+    alert("Failed to create group. Check console.");
+  }
+};
+
   const filtChat=chat.filter(c=>c.user.username.toLowerCase().includes(inp.toLowerCase()))
 
   return (
@@ -106,6 +177,52 @@ export default function ChatList() {
           <AddIcon />
         </IconButton>
       </Box>
+        <Box
+  sx={{
+    display: 'flex',
+    alignItems: 'center', 
+    justifyContent:'center',
+    m:1,
+  }}
+>
+  <Button variant='contained' onClick={()=>setGrp(!grp)} sx={{backgroundColor:'#696a6b55'}}><Typography variant='h6'>New group</Typography></Button>
+</Box>
+ {/* grp  creation */}
+{grp && <Box sx={{ height: 'auto', width: 'auto', backgroundColor: '#696a6b55' }}>
+  <Typography variant="h6">Create Group</Typography>
+
+  <input
+    placeholder="Group name"
+    value={groupName}
+    onChange={(e) => setGroupName(e.target.value)}
+    style={{ padding: 8, marginBottom: 16, width: 'auto' }}
+  />
+
+  <Typography variant="subtitle1" sx={{ mb: 1 }}>Select members:</Typography>
+  {allUsers.map((user) => (
+    <Box key={user.id} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+      <Checkbox
+        checked={selectedUsers.includes(user.id)}
+        onChange={() => toggleUser(user.id)}
+      />
+      <Avatar sx={{ mr: 1 }}>{user.username[0]}</Avatar>
+      <Typography>{user.username}</Typography>
+    </Box>
+  ))}
+
+  <Button
+    variant="contained"
+    onClick={handleCreateGroup}
+    disabled={!groupName || selectedUsers.length < 2}
+    sx={{ mt: 2 }}
+  >
+    Create Group
+  </Button>
+</Box>
+
+  }
+  
+
 
       <Box className="us">
         {chat && chat.length > 0 ? (
@@ -152,6 +269,7 @@ export default function ChatList() {
       </Box>
 
       {addUse && <AddUser />}
+    
     </Box>
   );
 }
