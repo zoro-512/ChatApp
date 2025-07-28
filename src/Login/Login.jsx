@@ -62,11 +62,9 @@ export default function Login() {
   blocked: [],
 });
 
-
     await setDoc(doc(db,'userChats',res.user.uid),{
       chats:[],
     });
-
 
     toast.success("Account created successfully!");
   } catch (error) {
@@ -76,7 +74,6 @@ export default function Login() {
     setLoad(false);
   }
 };
-
 
   return (
     <Box>
@@ -109,7 +106,7 @@ export default function Login() {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'transform 0.3s ease-in-out',
+    transition: 'transform 1.2s ease-in-out',
      transform: overlayActive ? 'translateX(0%)' : 'translateX(100%)', 
     zIndex: 10,
   }}>
@@ -158,7 +155,6 @@ export default function Login() {
     >{overlayActive?"Sign In" :"new"}</Button>
   </Box>
 
-
   {/* Sign In Section */}
   { <Box
     className="item"
@@ -178,6 +174,7 @@ export default function Login() {
       position: 'relative',
       zIndex: 1,
       transition: 'all 0.3s ease',
+      opacity: overlayActive ? 0 : 1,
       '&:hover': {
         transform: 'translateY(-5px)',
         boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
@@ -337,6 +334,7 @@ export default function Login() {
         position: 'relative',
         zIndex: 1,
         transition: 'all 0.3s ease',
+        opacity: overlayActive ? 1 : 0,
         '&:hover': {
           transform: 'translateY(-5px)',
           boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
