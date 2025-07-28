@@ -234,53 +234,69 @@ const handleSend = async () => {
           alignItems: isOwnMessage ? 'flex-end' : 'flex-start',
         }}
       >
-        {/* Show sender name only in group chat and if not own message */}
-        {isGroup && !isOwnMessage && (
-          <Typography
-            variant="h8"
-            sx={{ color: '#ff9900ff', mb: '2px', ml: 1 }}
-          >
-            {message.senderName || "Unknown"}
-          </Typography>
-        )}
+        
 
-        <Box
-          sx={{
-            bgcolor: isOwnMessage ? '#4caf4f46' : '#1976d226',
-            p: 1.5,
-            borderRadius: isOwnMessage
-              ? '30px 20px 0px 26px'
-              : '26px 30px 20px 0px',
-            maxWidth: '70%',
-            minWidth: '80px',
-            color: 'white',
-            wordBreak: 'break-word',
-            position: 'relative',
-          }}
-        >
-          <Typography
-            variant="body1"
-            sx={{ wordBreak: 'break-word', color: 'white' }}
-          >
-            {message.text}
-          </Typography>
+       <Box
+  sx={{
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
+    mb: 1,
+  }}
+>
+  {!isOwnMessage && (
+    <Avatar sx={{ bgcolor: "#731a8e" }}>
+                {message.senderName?.[0]?.toUpperCase() || "?"}
+              </Avatar>
+  )}
 
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'white',
-              fontSize: '0.7rem',
-              mt: 0.5,
-              display: 'block',
-              textAlign: 'right',
-            }}
-          >
-            {new Date(message.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </Typography>
-        </Box>
+  <Box
+    sx={{
+      bgcolor: isOwnMessage ? '#4caf4f46' : '#1976d226',
+      p: 1.5,
+      borderRadius: isOwnMessage
+        ? '30px 20px 0px 26px'
+        : '0px 30px 20px 30px',
+      maxWidth: '70%',
+      minWidth: '80px',
+      color: 'white',
+      wordBreak: 'break-word',
+      position: 'relative',
+    }}
+  >
+    {isGroup && !isOwnMessage && (
+      <Typography
+        variant="subtitle2"
+        sx={{ color: '#ff9900ff', mb: '2px', ml: 1 }}
+      >
+        {message.senderName || "Unknown"}
+      </Typography>
+    )}
+    
+    <Typography
+      variant="body1"
+      sx={{ wordBreak: 'break-word', color: 'white' }}
+    >
+      {message.text}
+    </Typography>
+
+    <Typography
+      variant="caption"
+      sx={{
+        color: 'white',
+        fontSize: '0.7rem',
+        mt: 0.5,
+        display: 'block',
+        textAlign: 'right',
+      }}
+    >
+      {new Date(message.createdAt).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      })}
+    </Typography>
+  </Box>
+</Box>
       </Box>
     );
   })}
