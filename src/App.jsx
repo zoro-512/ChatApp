@@ -42,7 +42,7 @@ export default function App() {
       {currentUser ? (
         <Box
           sx={{
-            backgroundImage: 'url("/jm3kocgn1eef1.png")',
+            backgroundImage: 'url("/download (3).jpg")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             height: '100vh',
