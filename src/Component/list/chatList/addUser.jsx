@@ -4,6 +4,7 @@ import { db } from "../../../lib/firebase";
 import { useState } from "react";
 import { useUserStore } from "../../../lib/userStore";
 import { useAddUserStore } from "../../../lib/addUserStore";
+import CloseIcon from '@mui/icons-material/Close';
 
 
 export default function AddUser() {
@@ -89,11 +90,15 @@ export default function AddUser() {
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
         }}
       >
-        <Typography variant="h4" sx={{ color: "white", mb: 2 }}>
+        <Box display={"flex"} sx={{justifyContent:"space-between"}}>
+<Typography variant="h4" sx={{ color: "white", mb: 2 }}>
           Add user
         </Typography>
 
-       <Button variant="contained" onClick={closeBox}>close</Button>
+          <CloseIcon onClick={closeBox} ></CloseIcon>
+        </Box>
+        
+       
 
         <Box component="form" onSubmit={handleSearch} sx={{ mb: 2,justifyContent:'center' }}>
           <input
