@@ -4,22 +4,19 @@ import AddIcon from '@mui/icons-material/Add';
 import AddUser from './addUser';
 import { useEffect, useState } from 'react';
 import { useUserStore } from '../../../lib/userStore';
-import { addDoc, doc,collection,setDoc, getDoc, onSnapshot, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+import { addDoc, doc, collection, setDoc, getDoc, onSnapshot, query, serverTimestamp, updateDoc, where, getDocs } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
-import { getDocs } from 'firebase/firestore';
 import Checkbox from '@mui/material/Checkbox';
 import Groups2Icon from '@mui/icons-material/Groups2';
-
-
-
+import { useAddUserStore } from "../../../lib/addUserStore";
 import { useChatStore } from '../../../lib/chatStore';
 
 export default function ChatList() {
+  const { isOpen, openBox, closeBox } = useAddUserStore();
   const [chat, setChat] = useState([]);
-  const [addUse, setAddUser] = useState(false);
   const [inp, setInp] = useState('');
   const { currentUser } = useUserStore();
-  const { changeChat,changeGrpChat } = useChatStore();
+  const { changeChat, changeGrpChat } = useChatStore();
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -39,8 +36,7 @@ export default function ChatList() {
           const user = userDocSnap.exists() ? userDocSnap.data() : null;
 
           return { ...item, user };
-        } catch (error) {
-          console.log("Error fetching user data:", error);
+        } catch {
           return { ...item, user: null };
         }
       });
@@ -52,7 +48,6 @@ export default function ChatList() {
     return () => unSub();
   }, [currentUser?.id]);
 
-  // disp grp
   const [groupChats, setGroupChats] = useState([]);
   useEffect(() => {
     const q = query(collection(db, "userGroup"), where("userId", "==", currentUser.id));
@@ -66,8 +61,7 @@ export default function ChatList() {
           if (groupDoc.exists()) {
             return { id: groupId, ...groupDoc.data() };
           }
-        } catch (err) {
-          console.log("Error fetching group:", err);
+        } catch {
           return null;
         }
       });
@@ -77,9 +71,7 @@ export default function ChatList() {
       setGroupChats(filtered);
     });
     return () => unSub();
-
-  }, [currentUser?.id])
-
+  }, [currentUser?.id]);
 
   const handleSelect = async (chatItem) => {
     const userChats = chat.map(item => {
@@ -99,32 +91,25 @@ export default function ChatList() {
         chats: userChats,
       });
       changeChat(chatItem.chatId, chatItem.user);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch {}
   };
 
- async function handleSelectGrp(group) {
-  if (!group.name) {
-    try {
-      const docSnap = await getDoc(doc(db, "group", group.id));
-      if (docSnap.exists()) {
-        group = { ...group, name: docSnap.data().name };
-      }
-    } catch (err) {
-      console.error("Failed to fetch group name:", err);
+  async function handleSelectGrp(group) {
+    if (!group.name) {
+      try {
+        const docSnap = await getDoc(doc(db, "group", group.id));
+        if (docSnap.exists()) {
+          group = { ...group, name: docSnap.data().name };
+        }
+      } catch {}
     }
+
+    changeGrpChat(group.id, group);
   }
-
-  changeGrpChat(group.id, group);
-}
-
-
 
   const [grp, setGrp] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [groupName, setGroupName] = useState('');
-
   const [selectedUsers, setSelectedUsers] = useState([]);
 
   useEffect(() => {
@@ -139,59 +124,51 @@ export default function ChatList() {
     fetchUsers();
   }, []);
 
-
-
   const toggleUser = (userId) => {
     setSelectedUsers(prev =>
       prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
     );
   };
 
+  const handleCreateGroup = async () => {
+    if (!groupName || selectedUsers.length < 2) {
+      alert("Please enter a group name and select at least 2 members.");
+      return;
+    }
 
+    try {
+      const newGroup = {
+        name: groupName,
+        createdBy: currentUser.id,
+        members: [...selectedUsers, currentUser.id],
+        createdAt: serverTimestamp(),
+      };
 
-const handleCreateGroup = async () => {
-  if (!groupName || selectedUsers.length < 2) {
-    alert("Please enter a group name and select at least 2 members.");
-    return;
-  }
+      const grpRef = await addDoc(collection(db, "group"), newGroup);
+      await setDoc(doc(db, "groupChat", grpRef.id), {
+        name: groupName,
+        messages: [],
+      });
 
-  try {
-    const newGroup = {
-      name: groupName,
-      createdBy: currentUser.id,
-      members: [...selectedUsers, currentUser.id],
-      createdAt: serverTimestamp(),
-    };
+      const userGroupPromises = [...selectedUsers, currentUser.id].map(userId =>
+        addDoc(collection(db, "userGroup"), {
+          groupId: grpRef.id,
+          userId,
+          joinedAt: serverTimestamp(),
+        })
+      );
 
-    const grpRef = await addDoc(collection(db, "group"), newGroup);
-    await setDoc(doc(db, "groupChat", grpRef.id), {
-      name:groupName,
-      messages: [],
-    });
+      await Promise.all(userGroupPromises);
 
-    const userGroupPromises = [...selectedUsers, currentUser.id].map(userId =>
-      addDoc(collection(db, "userGroup"), {
-        groupId: grpRef.id,
-        userId,
-        joinedAt: serverTimestamp(),
-      })
-    );
+      setGroupName('');
+      setSelectedUsers([]);
+      setGrp(false);
+    } catch {}
+  };
 
-    await Promise.all(userGroupPromises);
-
-    alert("Group created successfully!");
-    setGroupName('');
-    setSelectedUsers([]);
-    setGrp(false);
-
-  } catch (err) {
-    console.error("Error creating group:", err);
-    alert("Failed to create group. Check console.");
-  }
-};
-
-
-  const filtChat = chat.filter(c => c.user.username.toLowerCase().includes(inp.toLowerCase()))
+  const filtChat = chat.filter(c =>
+    c.user?.username?.toLowerCase().includes(inp.toLowerCase())
+  );
 
   return (
     <Box className="chatList" sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
@@ -224,7 +201,7 @@ const handleCreateGroup = async () => {
           />
         </Box>
 
-        <IconButton onClick={() => setAddUser(!addUse)} sx={{ color: 'white' }}>
+        <IconButton onClick={openBox} sx={{ color: 'white' }}>
           <AddIcon />
         </IconButton>
       </Box>
@@ -238,7 +215,6 @@ const handleCreateGroup = async () => {
       >
         <Button variant='contained' onClick={() => setGrp(!grp)} sx={{ backgroundColor: '#696a6b55' }}><Typography variant='h6'>New group</Typography></Button>
       </Box>
-      {/* grp  creation */}
       {grp && <Box sx={{ height: 'auto', width: 'auto', backgroundColor: '#696a6b55' }}>
         <Typography variant="h6">Create Group</Typography>
 
@@ -269,11 +245,7 @@ const handleCreateGroup = async () => {
         >
           Create Group
         </Button>
-      </Box>
-
-      }
-
-
+      </Box>}
 
       <Box className="us">
         {chat && chat.length > 0 ? (
@@ -304,8 +276,6 @@ const handleCreateGroup = async () => {
                     : chatItem.user?.username || "Unknown User"}
                 </Typography>
 
-
-
                 <Typography sx={{ color: 'gray', fontSize: '0.9rem' }}>
                   {chatItem.lastMessage || "No messages yet"}
                 </Typography>
@@ -319,13 +289,11 @@ const handleCreateGroup = async () => {
         )}
       </Box>
 
-      {addUse && <AddUser />}
-
+      {isOpen && <AddUser />}
 
       <Box className="groupChats">
-
         {groupChats.map(group => (
-          <Box key={group.id} onClick={()=>handleSelectGrp(group)} sx={{ p: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Box key={group.id} onClick={() => handleSelectGrp(group)} sx={{ p: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Groups2Icon fontSize='large'></Groups2Icon>
             <Typography sx={{ color: 'white', fontWeight: 'bold' }}>
               {group.name}
@@ -336,8 +304,6 @@ const handleCreateGroup = async () => {
           </Box>
         ))}
       </Box>
-
-
     </Box>
   );
 }

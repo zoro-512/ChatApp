@@ -3,8 +3,11 @@ import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, u
 import { db } from "../../../lib/firebase";
 import { useState } from "react";
 import { useUserStore } from "../../../lib/userStore";
+import { useAddUserStore } from "../../../lib/addUserStore";
+
 
 export default function AddUser() {
+  const { closeBox,isOpen } = useAddUserStore();
   const [user, setUser] = useState(null);
   const { currentUser } = useUserStore();
 
@@ -58,14 +61,13 @@ export default function AddUser() {
         messages: []
       });
 
-      // Reset user state after successful add
       setUser(null);
       
     } catch (error) {
       console.log(error);
     }
   };
-
+ if (!isOpen) return null;
   return (
     <Box
       sx={{
@@ -91,7 +93,9 @@ export default function AddUser() {
           Add user
         </Typography>
 
-        <Box component="form" onSubmit={handleSearch} sx={{ mb: 2 }}>
+       <Button variant="contained" onClick={closeBox}>close</Button>
+
+        <Box component="form" onSubmit={handleSearch} sx={{ mb: 2,justifyContent:'center' }}>
           <input
             name="userName"
             type="text"
@@ -102,7 +106,7 @@ export default function AddUser() {
               padding: "12px",
               border: "1px solid rgba(255,255,255,0.3)",
               borderRadius: "8px",
-              width: "100%",
+              width: "85%",
               marginBottom: "15px",
               color: "white",
               fontSize: "16px",
